@@ -1,5 +1,5 @@
 begin
-  require_relative "../ffi-gosu/lib/gosuu"
+  require_relative "../ffi-gosu/lib/gosu"
 rescue LoadError => e
   puts "Something when wrong loading ffi-gosu:"
   puts e.message

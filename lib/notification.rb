@@ -2,11 +2,15 @@ class Notification
   WIDTH = 500
   HEIGHT = 64
   EDGE_WIDTH = 8
-  TIME_TO_LIVE = 3_250
   ANIMATION_DURATION = 750
   PADDING = 8
 
-  PRIMARY_COLOR = Gosu::Color.new(0xaa313533)
+  TTL_LONG   = 5_000
+  TTL_MEDIUM = 3_250
+  TTL_SHORT  = 1_500
+  TIME_TO_LIVE = TTL_MEDIUM
+
+  BACKGROUND_COLOR = Gosu::Color.new(0xaa313533)
   EDGE_COLOR    = Gosu::Color.new(0xaa010101)
   ICON_COLOR    = Gosu::Color.new(0xddffffff)
   TITLE_COLOR   = Gosu::Color.new(0xddffffff)
@@ -27,11 +31,14 @@ class Notification
   ICON_GAMEPAD_3 = Gosu::Image.new("#{ROOT_PATH}/media/icons/gamepad3.png", retro: false)
   ICON_GAMEPAD_4 = Gosu::Image.new("#{ROOT_PATH}/media/icons/gamepad4.png", retro: false)
 
+  PRIORITY_HIGH   = 1.0
+  PRIORITY_MEDIUM = 0.5
+  PRIORITY_LOW    = 0.0
 
   attr_reader :priority, :title, :tagline, :icon, :time_to_live, :animation_duration
   def initialize(
     host:, priority:, title:, title_color: TITLE_COLOR, tagline: "", tagline_color: TAGLINE_COLOR, icon: nil, icon_color: ICON_COLOR,
-    time_to_live: TIME_TO_LIVE, animation_duration: ANIMATION_DURATION
+    edge_color: EDGE_COLOR, background_color: BACKGROUND_COLOR, time_to_live: TIME_TO_LIVE, animation_duration: ANIMATION_DURATION
   )
     @host = host
 
@@ -42,6 +49,8 @@ class Notification
     @tagline_color = tagline_color
     @icon = icon
     @icon_color = icon_color
+    @edge_color = edge_color
+    @background_color = background_color
     @time_to_live = time_to_live
     @animation_duration = animation_duration
 
@@ -49,15 +58,22 @@ class Notification
   end
 
   def draw
-    Gosu.draw_rect(0, 0, WIDTH, HEIGHT, PRIMARY_COLOR)
+    Gosu.draw_rect(0, 0, WIDTH, HEIGHT, @background_color)
 
-    if @host.edge == :right
-      Gosu.draw_rect(0, 0, EDGE_WIDTH, HEIGHT, EDGE_COLOR)
-      # Gosu.draw_rect(EDGE_WIDTH + PADDING, PADDING, ICON_SIZE, ICON_SIZE, ICON_COLOR) if @icon
+    if @host.edge == :top
+      Gosu.draw_rect(0, HEIGHT - EDGE_WIDTH, WIDTH, EDGE_WIDTH, @edge_color)
       @icon.draw(EDGE_WIDTH + PADDING, PADDING, 0, @icon_scale, @icon_scale, @icon_color) if @icon
+
+    elsif @host.edge == :bottom
+      Gosu.draw_rect(0, 0, WIDTH, EDGE_WIDTH, @edge_color)
+      @icon.draw(EDGE_WIDTH + PADDING, PADDING, 0, @icon_scale, @icon_scale, @icon_color) if @icon
+
+    elsif @host.edge == :right
+      Gosu.draw_rect(0, 0, EDGE_WIDTH, HEIGHT, @edge_color)
+      @icon.draw(EDGE_WIDTH + PADDING, PADDING, 0, @icon_scale, @icon_scale, @icon_color) if @icon
+
     else
-      Gosu.draw_rect(WIDTH - EDGE_WIDTH, 0, EDGE_WIDTH, HEIGHT, EDGE_COLOR)
-      # Gosu.draw_rect(WIDTH - (ICON_SIZE + EDGE_WIDTH + PADDING), PADDING, ICON_SIZE, ICON_SIZE, ICON_COLOR) if @icon
+      Gosu.draw_rect(WIDTH - EDGE_WIDTH, 0, EDGE_WIDTH, HEIGHT, @edge_color)
       @icon.draw(PADDING, PADDING, 0, @icon_scale, @icon_scale, @icon_color) if @icon
     end
 
