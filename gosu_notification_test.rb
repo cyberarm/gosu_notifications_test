@@ -1,4 +1,12 @@
-require_relative "../ffi-gosu/lib/gosu"
+begin
+  require_relative "../ffi-gosu/lib/gosuu"
+rescue LoadError => e
+  puts "Something when wrong loading ffi-gosu:"
+  puts e.message
+  puts e.backtrace
+
+  require "gosu"
+end
 
 ROOT_PATH = File.expand_path("..", __FILE__)
 
