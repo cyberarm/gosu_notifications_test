@@ -3,24 +3,39 @@ class Window < Gosu::Window
   def initialize
     super(1280, 800, false)
 
-    @notification_manager = NotificationManager.new(edge: :left, mode: NotificationManager::MODE_DEFAULT, window: self, max_visible: 3)
-    @notification_manager_b = NotificationManager.new(edge: :top, mode: NotificationManager::MODE_DEFAULT, window: self)
+    @notification_manager_a = NotificationManager.new(edge: :left,   mode: NotificationManager::MODE_DEFAULT, window: self, max_visible: 5)
+    @notification_manager_b = NotificationManager.new(edge: :right,  mode: NotificationManager::MODE_CIRCLE,  window: self, max_visible: 1)
+    @notification_manager_c = NotificationManager.new(edge: :top,    mode: NotificationManager::MODE_DEFAULT, window: self, max_visible: 3)
+    @notification_manager_d = NotificationManager.new(edge: :bottom, mode: NotificationManager::MODE_CIRCLE,  window: self, max_visible: 2)
+
+    @sum = 0
   end
 
   def draw
     Gosu.draw_rect(0, 0, width, height, 0xff884412)
 
-    Notification::TITLE_FONT.draw_text(TITLE, width / 2 - Notification::TITLE_FONT.text_width(TITLE) / 2, height / 2 - Notification::TITLE_FONT.height / 2, 0, 1, 1, Gosu::Color::WHITE, :add)
+    string = "#{TITLE} [#{@sum} pending]"
 
-    @notification_manager.draw
+    Notification::TITLE_FONT.draw_text(string, width / 2 - Notification::TITLE_FONT.text_width(string) / 2, height / 2 - Notification::TITLE_FONT.height / 2, 0, 1, 1, Gosu::Color::WHITE, :add)
+
+    @notification_manager_a.draw
     @notification_manager_b.draw
+    @notification_manager_c.draw
+    @notification_manager_d.draw
   end
 
   def update
-    @notification_manager.update
+    @notification_manager_a.update
     @notification_manager_b.update
+    @notification_manager_c.update
+    @notification_manager_d.update
 
-    self.caption = "#{TITLE} [#{@notification_manager.notifications.count + @notification_manager_b.notifications.count} pending]"
+    @sum = @notification_manager_a.notifications.count +
+          @notification_manager_b.notifications.count +
+          @notification_manager_c.notifications.count +
+          @notification_manager_d.notifications.count
+
+    self.caption = "#{TITLE} [#{@sum} pending]"
   end
 
   def needs_cursor?
@@ -32,7 +47,7 @@ class Window < Gosu::Window
 
     case id
     when Gosu::KB_ESCAPE
-      @notification_manager.create_notification(
+      @notification_manager_a.create_notification(
         priority: Notification::PRIORITY_LOW,
         title: "Escape Is Not Possible",
         tagline: "Trapped forever, you are.",
@@ -43,7 +58,7 @@ class Window < Gosu::Window
         tagline_color: 0xaaeeeeee,
       )
     when Gosu::KB_SPACE
-      @notification_manager.create_notification(
+      @notification_manager_b.create_notification(
         priority: Notification::PRIORITY_LOW,
         title: "Jumping Is Not A Thing Here",
         tagline: "I... hmm.",
@@ -52,7 +67,7 @@ class Window < Gosu::Window
         time_to_live: Notification::TTL_SHORT
       )
     when Gosu::MS_LEFT
-      @notification_manager_b.create_notification(
+      @notification_manager_c.create_notification(
         priority: Notification::PRIORITY_LOW,
         title: "Mouse Mouse There's A Mouse!",
         tagline: "#{mouse_x}:#{mouse_y}",
@@ -65,7 +80,7 @@ class Window < Gosu::Window
         background_color: 0xaa440000
       )
     when Gosu::MS_MIDDLE
-      @notification_manager_b.create_notification(
+      @notification_manager_c.create_notification(
         priority: Notification::PRIORITY_LOW,
         title: "Mouse Has Been Middled",
         tagline: "#{mouse_x}:#{mouse_y}",
@@ -73,18 +88,36 @@ class Window < Gosu::Window
         tagline_color: 0xaa00ff00
       )
     when Gosu::MS_RIGHT
-      @notification_manager_b.create_notification(
+      @notification_manager_c.create_notification(
         priority: Notification::PRIORITY_LOW,
         title: "Mouse Has Been Dispatched",
         tagline: "404B: No cheese located at #{mouse_x}:#{mouse_y}",
         time_to_live: Notification::TTL_SHORT,
         edge_color: 0xaaffffff
       )
+    when Gosu::KB_LEFT_CONTROL
+      @notification_manager_d.create_notification(
+        priority: Notification::PRIORITY_LOW,
+        title: "I Will Control... Something!",
+        time_to_live: Notification::TTL_SHORT,
+        transition_duration: 1000.0,
+        title_color: 0xaaff8800,
+        edge_color: 0xaaff8800,
+      )
+    when Gosu::KB_RIGHT_CONTROL
+      @notification_manager_d.create_notification(
+        priority: Notification::PRIORITY_LOW,
+        title: "I Will Control... Something Else!",
+        time_to_live: Notification::TTL_SHORT,
+        transition_duration: 1000.0,
+        title_color: 0xaa88ff00,
+        edge_color: 0xaaffffaa,
+      )
     end
   end
 
   def gamepad_connected(id)
-    @notification_manager.create_notification(
+    @notification_manager_c.create_notification(
       priority: Notification::PRIORITY_HIGH,
       title: "Gamepad Connected",
       tagline: "#{Gosu.gamepad_name(id)}",
@@ -94,7 +127,7 @@ class Window < Gosu::Window
   end
 
   def gamepad_disconnected(id)
-    @notification_manager_b.create_notification(
+    @notification_manager_c.create_notification(
       priority: Notification::PRIORITY_HIGH,
       title: "Gamepad Disconnected",
       tagline: "#{Gosu.gamepad_name(id)}",

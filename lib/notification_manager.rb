@@ -33,8 +33,10 @@ class NotificationManager
       when :top, :bottom
         x = @window.width / 2 - Notification::WIDTH / 2
         y = @edge == :top ? driver.y - Notification::HEIGHT : @window.height + driver.y
+        slot_position = (Notification::HEIGHT + Notification::PADDING) * driver.slot
+        slot_position *= -1 if @edge == :bottom
 
-        Gosu.translate(x, y + (Notification::HEIGHT + Notification::PADDING) * driver.slot) do
+        Gosu.translate(x, y + slot_position) do
           driver.draw
         end
       end
@@ -123,20 +125,23 @@ class NotificationManager
     end
 
     def draw
+      ratio = 0.0
+
+      if not transition_in_complete?
+        ratio = animation_ratio
+      elsif transition_in_complete? and not duration_completed?
+        ratio = 1.0
+      elsif duration_completed?
+        ratio = 1.0 - animation_ratio
+      end
+
       case @mode
       when MODE_DEFAULT
-        @notification.draw
+        Gosu.clip_to(0, 0, Notification::WIDTH, Notification::HEIGHT * ratio) do
+          @notification.draw
+        end
       when MODE_CIRCLE
         half = Notification::WIDTH / 2
-        ratio = 0.0
-
-        if not transition_in_complete?
-          ratio = animation_ratio
-        elsif transition_in_complete? and not duration_completed?
-          ratio = 1.0
-        elsif duration_completed?
-          ratio = 1.0 - animation_ratio
-        end
 
         Gosu.clip_to(half - (half * ratio), 0, Notification::WIDTH * ratio, Notification::HEIGHT) do
           @notification.draw
