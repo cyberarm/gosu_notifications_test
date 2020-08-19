@@ -111,7 +111,7 @@ class NotificationManager
     end
 
     def transition_in_complete?
-      Gosu.milliseconds - @born_at >= @notification.animation_duration
+      Gosu.milliseconds - @born_at >= @notification.transition_duration
     end
 
     def duration_completed?
@@ -119,7 +119,7 @@ class NotificationManager
     end
 
     def done?
-      Gosu.milliseconds - @duration_completed_at >= @notification.animation_duration
+      Gosu.milliseconds - @duration_completed_at >= @notification.transition_duration
     end
 
     def draw
@@ -206,7 +206,14 @@ class NotificationManager
     end
 
     def animation_ratio
-      (@accumulator / @notification.animation_duration).clamp(0.0, 1.0)
+      x = (@accumulator / @notification.transition_duration)
+
+      case @notification.transition_type
+      when Notification::LINEAR_TRANSITION
+        x.clamp(0.0, 1.0)
+      when Notification::EASE_IN_OUT_TRANSITION # https://easings.net/#easeInOutQuint
+        (x < 0.5 ? 16 * x * x * x * x * x : 1 - ((-2 * x + 2) ** 5) / 2).clamp(0.0, 1.0)
+      end
     end
 
     def x_offset

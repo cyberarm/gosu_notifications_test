@@ -3,21 +3,8 @@ class Window < Gosu::Window
   def initialize
     super(1280, 800, false)
 
-    @notification_manager = NotificationManager.new(edge: :right, window: self, max_visible: 3)
-    @notification_manager_b = NotificationManager.new(edge: :top, mode: NotificationManager::MODE_CIRCLE, window: self)
-
-    @notification_manager.create_notification(
-      priority: Notification::PRIORITY_LOW,
-      title: "Current Time [LOW]",
-      tagline: "#{Time.now.strftime("%B %e, %Y %H:%M:%S %Z")}",
-      icon: Notification::ICON_HOME,
-    )
-    @notification_manager.create_notification(
-      priority: Notification::PRIORITY_HIGH,
-      title: "Current Time [HIGH]",
-      tagline: "#{Time.now.strftime("%B %e, %Y %H:%M:%S %Z")}",
-      icon: Notification::ICON_WARNING,
-    )
+    @notification_manager = NotificationManager.new(edge: :left, mode: NotificationManager::MODE_DEFAULT, window: self, max_visible: 3)
+    @notification_manager_b = NotificationManager.new(edge: :top, mode: NotificationManager::MODE_DEFAULT, window: self)
   end
 
   def draw

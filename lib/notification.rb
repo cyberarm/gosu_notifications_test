@@ -2,7 +2,7 @@ class Notification
   WIDTH = 500
   HEIGHT = 64
   EDGE_WIDTH = 8
-  ANIMATION_DURATION = 750
+  TRANSITION_DURATION = 750
   PADDING = 8
 
   TTL_LONG   = 5_000
@@ -35,10 +35,14 @@ class Notification
   PRIORITY_MEDIUM = 0.5
   PRIORITY_LOW    = 0.0
 
-  attr_reader :priority, :title, :tagline, :icon, :time_to_live, :animation_duration
+  LINEAR_TRANSITION = :linear
+  EASE_IN_OUT_TRANSITION = :ease_in_out
+
+  attr_reader :priority, :title, :tagline, :icon, :time_to_live, :transition_duration, :transition_type
   def initialize(
     host:, priority:, title:, title_color: TITLE_COLOR, tagline: "", tagline_color: TAGLINE_COLOR, icon: nil, icon_color: ICON_COLOR,
-    edge_color: EDGE_COLOR, background_color: BACKGROUND_COLOR, time_to_live: TIME_TO_LIVE, animation_duration: ANIMATION_DURATION
+    edge_color: EDGE_COLOR, background_color: BACKGROUND_COLOR, time_to_live: TIME_TO_LIVE, transition_duration: TRANSITION_DURATION,
+    transition_type: EASE_IN_OUT_TRANSITION
   )
     @host = host
 
@@ -52,7 +56,8 @@ class Notification
     @edge_color = edge_color
     @background_color = background_color
     @time_to_live = time_to_live
-    @animation_duration = animation_duration
+    @transition_duration = transition_duration
+    @transition_type = transition_type
 
     @icon_scale = ICON_SIZE.to_f / @icon.width if @icon
   end
